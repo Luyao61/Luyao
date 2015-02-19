@@ -4,4 +4,4 @@
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="100" android:showAsAction="never" />
 </menu>
-<!-- From: file:/G:/Desktop/RecognizeThisForGlass/app/src/main/res/menu/menu_display_info.xml -->
+<!-- From: file:/G:/Documents/GitHub/Luyao/RecognizeThisForGlass/app/src/main/res/menu/menu_display_info.xml -->

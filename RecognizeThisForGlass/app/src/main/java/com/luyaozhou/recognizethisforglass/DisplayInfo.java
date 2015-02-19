@@ -14,13 +14,8 @@ public class DisplayInfo extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_info);
-        TextView idText = (TextView) findViewById(R.id.idText);
-        TextView nameText = (TextView) findViewById(R.id.nameText);
-        TextView dobText = (TextView) findViewById(R.id.dobText);
 
-        idText.setText("ID:");
-        nameText.setText("Name: ");
-        dobText.setText("DOB: ");
+
     }
 
 

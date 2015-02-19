@@ -11,24 +11,36 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="25dp"
-            android:text="New Text"
-            android:id="@+id/idText" />
+        <EditText
+            android:text="ID #:"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/editText" />
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="25dp"
-            android:text="New Text"
-            android:id="@+id/nameText" />
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:text="First Name:"
+            android:ems="10"
+            android:id="@+id/editText" />
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="25dp"
-            android:text="New Text"
-            android:id="@+id/dobText" />
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:text="Last Name:"
+            android:ems="10"
+            android:id="@+id/editText" />
+
+        <EditText
+            android:text="Date of Birth:"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="date"
+            android:ems="10"
+            android:id="@+id/editText" />
     </LinearLayout>
 
 </RelativeLayout>
-<!-- From: file:/G:/Desktop/RecognizeThisForGlass/app/src/main/res/layout/activity_display_info.xml -->
+<!-- From: file:/G:/Documents/GitHub/Luyao/RecognizeThisForGlass/app/src/main/res/layout/activity_display_info.xml -->

@@ -26,16 +26,14 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int action_settings=0x7f0a0009;
-        public static final int body_layout=0x7f0a0005;
-        public static final int camerapreview=0x7f0a0003;
-        public static final int dobText=0x7f0a0002;
-        public static final int footer=0x7f0a0007;
-        public static final int footer_container=0x7f0a0006;
-        public static final int idText=0x7f0a0000;
-        public static final int layout=0x7f0a0004;
-        public static final int nameText=0x7f0a0001;
-        public static final int timestamp=0x7f0a0008;
+        public static final int action_settings=0x7f0a0007;
+        public static final int body_layout=0x7f0a0003;
+        public static final int camerapreview=0x7f0a0001;
+        public static final int editText=0x7f0a0000;
+        public static final int footer=0x7f0a0005;
+        public static final int footer_container=0x7f0a0004;
+        public static final int layout=0x7f0a0002;
+        public static final int timestamp=0x7f0a0006;
     }
     public static final class layout {
         public static final int activity_display_info=0x7f030000;
