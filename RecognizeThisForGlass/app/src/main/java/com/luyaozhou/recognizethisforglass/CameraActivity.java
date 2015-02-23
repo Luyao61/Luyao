@@ -1,12 +1,20 @@
 package com.luyaozhou.recognizethisforglass;
 
 
+        import java.io.BufferedOutputStream;
         import java.io.File;
+        import java.io.FileOutputStream;
         import java.io.IOException;
+        import java.io.OutputStream;
+        import java.net.URI;
+
         import android.app.Activity;
         import android.content.Intent;
+        import android.graphics.Bitmap;
+        import android.graphics.BitmapFactory;
         import android.graphics.PixelFormat;
         import android.hardware.Camera;
+        import android.net.Uri;
         import android.os.Bundle;
         import android.os.FileObserver;
         import android.os.Handler;
@@ -26,6 +34,7 @@ public class CameraActivity extends Activity {
     private boolean previewOn;
     Handler mHandler = new Handler();
     private final static int CAMERA_FPS = 5000;
+    Uri myUri;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -49,7 +58,6 @@ public class CameraActivity extends Activity {
                 camera.release(); // release the camera
                 previewOn = false;
 
-
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); // capture image
                 startActivityForResult(intent, PHOTO_REQUEST_CODE);
 
@@ -59,6 +67,8 @@ public class CameraActivity extends Activity {
             case KeyEvent.KEYCODE_DPAD_CENTER: // touchpad tap
             case KeyEvent.KEYCODE_ENTER: {
 
+
+
                 camera.stopPreview();
                 camera.release();
 
@@ -67,16 +77,10 @@ public class CameraActivity extends Activity {
 
                     @Override
                     public void run() {
-
                         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); // capture image
 
-
                         startActivityForResult(intent, PHOTO_REQUEST_CODE);
-
-
                     }
-
-
                 });
 
                 return false;
@@ -89,7 +93,10 @@ public class CameraActivity extends Activity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         if (resultCode == RESULT_OK && requestCode == PHOTO_REQUEST_CODE ) {
+
+
             String photoFileName = data.getStringExtra(Intents.EXTRA_THUMBNAIL_FILE_PATH);
             String picturePath = data.getStringExtra(Intents.EXTRA_PICTURE_FILE_PATH);
             processPictureWhenReady(picturePath);
@@ -106,11 +113,11 @@ public class CameraActivity extends Activity {
             // The picture is ready; process it.
 
         } else {
+
             // The file does not exist yet. Before starting the file observer, you
             // can update your UI to let the user know that the application is
             // waiting for the picture (for example, by displaying the thumbnail
             // image and a progress indicator).
-
             final File parentDirectory = pictureFile.getParentFile();
             FileObserver observer = new FileObserver(parentDirectory.getPath(),
                     FileObserver.CLOSE_WRITE | FileObserver.MOVED_TO) {
@@ -141,6 +148,7 @@ public class CameraActivity extends Activity {
                     }
                 }
             };
+
             observer.startWatching();
             Intent infoIntent = new Intent(this, DisplayInfo.class);
             startActivity(infoIntent);
@@ -169,7 +177,19 @@ public class CameraActivity extends Activity {
 
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
+
                 camera = Camera.open();
+                try {
+                    camera.setPreviewDisplay(holder);
+                    Camera.Parameters p = camera.getParameters();
+                    p.set("jpeg-quality", 70);
+                    p.setPictureFormat(PixelFormat.JPEG);
+                    p.setPictureSize(640, 480);
+                    camera.setParameters(p);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
             }
 
             @Override
