@@ -39,7 +39,7 @@ public class LiveCardService extends Service {
             mLiveCard = new LiveCard(this, LIVE_CARD_TAG);
 
             mLiveCard.setViews(mLiveCardViews);
-            Intent cardActionIntent = new Intent(this, CameraActivity.class);
+                Intent cardActionIntent = new Intent(this, CameraActivity.class);
             //cardActionIntent.setAction(ACTION_STOP);
             mLiveCard.setAction(PendingIntent.getActivity(this, 0, cardActionIntent, 0));
 
