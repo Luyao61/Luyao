@@ -113,42 +113,6 @@ public class CameraActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private String formatSOAPMessage(String method, HashMap<String, String> params)
-    {
-        StringBuilder mBuilder = new StringBuilder();
-        mBuilder.setLength(0);
-        mBuilder.append("<?xml version='1.0' encoding='utf-8'?>");
-        mBuilder.append("<soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'>");
-
-        mBuilder.append("<soap:Body><");
-        mBuilder.append(method);
-        mBuilder.append(" xmlns='http://www.miteksystems.com/'>");
-        Iterator<String> it = params.keySet().iterator();
-        String key;
-        while(it.hasNext())
-        {
-            key = it.next();
-
-            mBuilder.append("<");
-            mBuilder.append(key);
-            mBuilder.append(">");
-
-            mBuilder.append(TextUtils.htmlEncode(params.get(key)));
-
-            mBuilder.append("</");
-            mBuilder.append(key);
-            mBuilder.append(">");
-
-        }
-
-        mBuilder.append("</");
-        mBuilder.append(method);
-        mBuilder.append("></soap:Body></soap:Envelope>");
-
-        return mBuilder.toString();
-    }
-
-
     private void processPictureWhenReady(final String picturePath) {
         final File pictureFile = new File(picturePath);
 
@@ -197,6 +161,9 @@ public class CameraActivity extends Activity {
                 e.printStackTrace();
             }
 
+            // this part will be relocated in order to let the the server process picture
+            Intent display = new Intent(getApplicationContext(), DisplayInfo.class);
+            startActivity(display);
         } else {
             // The file does not exist yet. Before starting the file observer, you
             // can update your UI to let the user know that the application is
@@ -234,28 +201,43 @@ public class CameraActivity extends Activity {
             };
             observer.startWatching();
 
-            // this part will be relocated in order to let the the server process picture
-            Intent display = new Intent(getApplicationContext(), DisplayInfo.class);
-            startActivity(display);
         }
 
     }
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
 
-        // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = "file:" + image.getAbsolutePath();
-        return image;
+    private String formatSOAPMessage(String method, HashMap<String, String> params)
+    {
+        StringBuilder mBuilder = new StringBuilder();
+        mBuilder.setLength(0);
+        mBuilder.append("<?xml version='1.0' encoding='utf-8'?>");
+        mBuilder.append("<soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'>");
+        mBuilder.append("<soap:Body><");
+        mBuilder.append(method);
+        mBuilder.append(" xmlns='http://www.miteksystems.com/'>");
+        Iterator<String> it = params.keySet().iterator();
+        String key;
+        while(it.hasNext())
+        {
+            key = it.next();
+
+            mBuilder.append("<");
+            mBuilder.append(key);
+            mBuilder.append(">");
+
+            mBuilder.append(TextUtils.htmlEncode(params.get(key)));
+
+            mBuilder.append("</");
+            mBuilder.append(key);
+            mBuilder.append(">");
+
+        }
+
+        mBuilder.append("</");
+        mBuilder.append(method);
+        mBuilder.append("></soap:Body></soap:Envelope>");
+        return mBuilder.toString();
     }
+
 
     // camera preview stuff
     class SurfaceHolderCallback implements SurfaceHolder.Callback {
@@ -269,11 +251,9 @@ public class CameraActivity extends Activity {
                     //params.setPictureSize(320,240);
                     camera.setParameters(params);
 
-                    Camera.Parameters params1 = camera.getParameters(); // must change the camera parameters to fix a bug in XE1
-
-                    Camera.Size sizes = params1.getPictureSize();
-
-                    Log.d("Hello","size : "+ sizes.width +" "+ sizes.height);
+//                    Camera.Parameters params1 = camera.getParameters(); // must change the camera parameters to fix a bug in XE1
+//                    Camera.Size sizes = params1.getPictureSize();
+//                    Log.d("Hello","size : "+ sizes.width +" "+ sizes.height);
                     camera.setPreviewDisplay(surfaceHolder);
                     camera.startPreview();
                     previewOn = true;
