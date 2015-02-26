@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SecondApp</string>
+    <string name="welcomeMsg">这是我的第二个APP ：）</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_show_time">ShowTimeActivity</string>
+    <string name="showTime">Show Time</string>
+
+</resources>
