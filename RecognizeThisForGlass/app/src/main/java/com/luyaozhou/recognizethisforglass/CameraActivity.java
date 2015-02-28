@@ -33,6 +33,7 @@ import com.google.android.glass.content.Intents;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
@@ -42,7 +43,7 @@ import org.apache.http.protocol.HTTP;
 public class CameraActivity extends Activity {
     private static final int PHOTO_REQUEST_CODE=1;
     private SurfaceHolder surfaceHolder;
-    private Camera camera;
+    private Camera camera = null;
     private boolean previewOn;
     Handler mHandler = new Handler();
     private final static int CAMERA_FPS = 5000;
@@ -69,11 +70,20 @@ public class CameraActivity extends Activity {
 
                 camera.stopPreview(); // stop the preview
                 camera.release(); // release the camera
+                camera = null;
+
                 previewOn = false;
 
-
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); // capture image
-                startActivityForResult(intent, PHOTO_REQUEST_CODE);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); // capture image
+                        if (intent.resolveActivity(getPackageManager()) != null) {
+                            startActivityForResult(intent, PHOTO_REQUEST_CODE);
+                        }
+//                        startActivityForResult(intent, PHOTO_REQUEST_CODE);
+                    }
+                });
 
                 // Return false to allow the camera button to do its default action
                 return false;
@@ -84,6 +94,8 @@ public class CameraActivity extends Activity {
 
                 camera.stopPreview();
                 camera.release();
+                camera = null;
+
 
                 previewOn = false; // Don't release the camera in surfaceDestroyed()
 
@@ -169,8 +181,9 @@ public class CameraActivity extends Activity {
                         HttpResponse mResponse = mHttpClient.execute(mHttpPost,new BasicHttpContext());
 
 
+                        String responseString = new BasicResponseHandler().handleResponse(mResponse);
 
-                        Log.i("test", "test");
+                        Log.i("test", "test:"+" "+responseString);
                     }
 
                 }
