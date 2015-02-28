@@ -4,16 +4,13 @@ package com.luyaozhou.recognizethisforglass;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.net.URI;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Iterator;
 
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.app.Activity;
 import android.content.Intent;
@@ -21,7 +18,6 @@ import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.FileObserver;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -33,6 +29,13 @@ import android.view.SurfaceView;
 import android.widget.ImageView;
 
 import com.google.android.glass.content.Intents;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HTTP;
 
 //Special thanks to Nortom Lam for camera example source
 
@@ -153,7 +156,21 @@ public class CameraActivity extends Activity {
                         lValuePairs.put("data5", "");
 
                         String lSoapMsg= formatSOAPMessage("InsertPhoneTransaction",lValuePairs);
-                        Log.i("test","test");
+                        DefaultHttpClient mHttpClient = new DefaultHttpClient();
+//                        mHttpClient.getParams().setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.R)
+                        HttpPost mHttpPost = new HttpPost();
+
+                        mHttpPost.setHeader("User-Agent","UCSD Team");
+                        mHttpPost.setHeader("Content-typURIe","text/xml;charset=UTF-8");
+                        mHttpPost.setURI(URI.create("https://mi1.miteksystems.com/mobileimaging/ImagingPhoneService.asmx?op=InsertPhoneTransaction"));
+                        StringEntity se = new StringEntity(lSoapMsg, HTTP.UTF_8);
+                        se.setContentType("text/xml; charset=UTF-8");
+                        mHttpPost.setEntity(se);
+                        HttpResponse mResponse = mHttpClient.execute(mHttpPost,new BasicHttpContext());
+
+
+
+                        Log.i("test", "test");
                     }
 
                 }
@@ -178,7 +195,7 @@ public class CameraActivity extends Activity {
                 private boolean isFileWritten;
 
                 @Override
-                public void onEvent(int event, String path) {
+                public void onEvent(int event, final String path) {
                     if (!isFileWritten) {
                         // For safety, make sure that the file that was created in
                         // the directory is actually the one that we're expecting.
@@ -192,7 +209,7 @@ public class CameraActivity extends Activity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    processPictureWhenReady(picturePath);
+                                    new LongOperation().execute(picturePath);
                                 }
                             });
                         }
@@ -204,6 +221,26 @@ public class CameraActivity extends Activity {
         }
 
     }
+
+    class LongOperation extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            processPictureWhenReady(params[0]);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+        }
+
+        @Override
+        protected void onPreExecute() {}
+
+        @Override
+        protected void onProgressUpdate(Void... values) {}
+    }
+
 
     private String formatSOAPMessage(String method, HashMap<String, String> params)
     {

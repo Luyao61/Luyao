@@ -26,12 +26,6 @@
                 android:resource="@xml/voice_trigger_start" />
         </activity>
 
-        <service
-            android:name=".LiveCardService"
-            android:enabled="true"
-            android:exported="true" >
-        </service>
-
         <activity
             android:name=".DisplayInfo"
             android:label="@string/title_activity_display_info"
