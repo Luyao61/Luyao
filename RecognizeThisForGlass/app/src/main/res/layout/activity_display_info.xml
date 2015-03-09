@@ -11,46 +11,103 @@
 
     <TextView
         android:textColor="@color/white"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="date"
-        android:text="Date of Birth:"
-        android:ems="10"
-        android:id="@+id/editText"
-        android:layout_below="@+id/editText3"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:textColor="@color/white"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="textPersonName"
-        android:text="First Name:"
-        android:ems="10"
-        android:id="@+id/editText2"
-        android:layout_below="@+id/editText4"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:textColor="@color/white"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="textPersonName"
-        android:text="Last Name:"
-        android:ems="10"
-        android:id="@+id/editText3"
-        android:layout_below="@+id/editText2"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:textColor="@color/white"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:inputType="number"
         android:text="ID Number:"
         android:ems="10"
-        android:id="@+id/editText4"
-        android:layout_alignParentTop="true"
+        android:id="@+id/idNumber"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true" />
+
+    <TextView
+        android:textColor="@color/white"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text="First Name:"
+        android:ems="10"
+        android:id="@+id/fn"
+        android:layout_below="@+id/idNumber"
         android:layout_alignParentStart="true" />
+
+    <TextView
+        android:textColor="@color/white"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text="Last Name:"
+        android:ems="10"
+        android:id="@+id/ln"
+        android:layout_below="@+id/fn"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:textColor="@color/white"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text="Full Name:"
+        android:ems="10"
+        android:id="@+id/fullName"
+        android:layout_below="@+id/ln"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:textColor="@color/white"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:inputType="date"
+        android:text="Date of Birth: "
+        android:ems="10"
+        android:id="@+id/dob"
+        android:layout_below="@+id/fullName"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:textColor="@color/white"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text="Sex: "
+        android:ems="10"
+        android:id="@+id/sex"
+        android:layout_below="@+id/dob"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:textColor="@color/white"
+        android:layout_width="70dip"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text="Address: "
+        android:ems="10"
+        android:id="@+id/address"
+        android:layout_below="@+id/sex"
+        android:layout_alignParentStart="true" />
+
+
+    <TextView
+        android:textColor="@color/white"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text=""
+        android:ems="10"
+        android:id="@+id/aContent1"
+        android:layout_below="@+id/sex"
+        android:layout_toEndOf="@+id/address" />
+
+    <TextView
+        android:textColor="@color/white"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text=""
+        android:ems="10"
+        android:id="@+id/aContent2"
+        android:layout_below="@+id/address"
+        android:layout_alignStart="@+id/aContent1" />
+
 
 </RelativeLayout>

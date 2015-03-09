@@ -5,9 +5,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -26,9 +28,12 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.google.android.glass.content.Intents;
+import com.google.android.glass.widget.CardScrollView;
+import com.google.android.glass.widget.Slider;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -37,18 +42,34 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
+import org.w3c.dom.CharacterData;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 //Special thanks to Nortom Lam for camera example source
 
-public class CameraActivity extends Activity {
+public class ViewFinder extends Activity {
     private static final int PHOTO_REQUEST_CODE=1;
     private SurfaceHolder surfaceHolder;
-    private Camera camera = null;
+    private Camera camera;
     private boolean previewOn;
     Handler mHandler = new Handler();
     private final static int CAMERA_FPS = 5000;
     String mCurrentPhotoPath;
     ImageView mImageView;
+    private boolean keyEnable = true;
+    Map<String, String> map = new HashMap<String, String>();
+    Map<String, String> iQAMsg = new HashMap<String, String>();
+
+    //private CardScrollView mCardScroller;
+    //private Slider mSlider;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,55 +82,57 @@ public class CameraActivity extends Activity {
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.camerapreview);
         surfaceHolder = surfaceView.getHolder();
         surfaceHolder.addCallback(new SurfaceHolderCallback());
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);  // keep screen on
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_CAMERA: { // camera button (hardware)
+                if(keyEnable) {
 
-                camera.stopPreview(); // stop the preview
-                camera.release(); // release the camera
-                camera = null;
+                    camera.stopPreview(); // stop the preview
+                    camera.release(); // release the camera
+                    previewOn = false;
 
-                previewOn = false;
-
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); // capture image
-                        if (intent.resolveActivity(getPackageManager()) != null) {
-                            startActivityForResult(intent, PHOTO_REQUEST_CODE);
+                    keyEnable = false;
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); // capture image
+                            if (intent.resolveActivity(getPackageManager()) != null) {
+                                startActivityForResult(intent, PHOTO_REQUEST_CODE);
+                            }
                         }
-//                        startActivityForResult(intent, PHOTO_REQUEST_CODE);
-                    }
-                });
+                    });
 
-                // Return false to allow the camera button to do its default action
+                }
+                    // Return false to allow the camera button to do its default action
                 return false;
+
             }
             case KeyEvent.KEYCODE_DPAD_CENTER: // touchpad tap
             case KeyEvent.KEYCODE_ENTER: {
 
+                if(keyEnable) {
 
-                camera.stopPreview();
-                camera.release();
-                camera = null;
+                    camera.stopPreview();
+                    camera.release();
 
+                    previewOn = false; // Don't release the camera in surfaceDestroyed()
 
-                previewOn = false; // Don't release the camera in surfaceDestroyed()
-
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); // capture image
-                        if (intent.resolveActivity(getPackageManager()) != null) {
-                            startActivityForResult(intent, PHOTO_REQUEST_CODE);
+                    keyEnable = false;
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); // capture image
+                            if (intent.resolveActivity(getPackageManager()) != null) {
+                                startActivityForResult(intent, PHOTO_REQUEST_CODE);
+                            }
                         }
-//                        startActivityForResult(intent, PHOTO_REQUEST_CODE);
-                    }
-                });
+                    });
 
+                }
                 return false;
             }
             default: {
@@ -130,6 +153,7 @@ public class CameraActivity extends Activity {
 
     private void processPictureWhenReady(final String picturePath) {
         final File pictureFile = new File(picturePath);
+        //Map<String, String > result = new HashMap<String,String>();
 
         if (pictureFile.exists()) {
             // The picture is ready; process it.
@@ -156,8 +180,8 @@ public class CameraActivity extends Activity {
                         HashMap<String,String> lValuePairs = new HashMap<String,String>();
                         lValuePairs.put("base64Image", Base64.encodeToString(lImageByteArray,Base64.DEFAULT));
                         lValuePairs.put("compressionLevel","30");
-                        lValuePairs.put("documentIdentifier", "");
-                        lValuePairs.put("documentHints", "DRIVER_LICENSE_CA");
+                        lValuePairs.put("documentIdentifier", "DRIVER_LICENSE_CA");
+                        lValuePairs.put("documentHints", "");
                         lValuePairs.put("dataReturnLevel", "15");
                         lValuePairs.put("returnImageType", "1");
                         lValuePairs.put("rotateImage", "0");
@@ -166,34 +190,53 @@ public class CameraActivity extends Activity {
                         lValuePairs.put("data3", "");
                         lValuePairs.put("data4", "");
                         lValuePairs.put("data5", "");
+                        lValuePairs.put("userName", "zbroyan@miteksystems.com");
+                        lValuePairs.put("password", "google1");
+                        lValuePairs.put("phoneKey", "1");
+                        lValuePairs.put("orgName", "MobileImagingOrg");
 
                         String lSoapMsg= formatSOAPMessage("InsertPhoneTransaction",lValuePairs);
+
                         DefaultHttpClient mHttpClient = new DefaultHttpClient();
 //                        mHttpClient.getParams().setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.R)
                         HttpPost mHttpPost = new HttpPost();
 
                         mHttpPost.setHeader("User-Agent","UCSD Team");
                         mHttpPost.setHeader("Content-typURIe","text/xml;charset=UTF-8");
-                        mHttpPost.setURI(URI.create("https://mi1.miteksystems.com/mobileimaging/ImagingPhoneService.asmx?op=InsertPhoneTransaction"));
+                        //mHttpPost.setURI(URI.create("https://mi1.miteksystems.com/mobileimaging/ImagingPhoneService.asmx?op=InsertPhoneTransaction"));
+                        mHttpPost.setURI(URI.create("https://mi1.miteksystems.com/mobileimaging/ImagingPhoneService.asmx"));
+
                         StringEntity se = new StringEntity(lSoapMsg, HTTP.UTF_8);
                         se.setContentType("text/xml; charset=UTF-8");
                         mHttpPost.setEntity(se);
                         HttpResponse mResponse = mHttpClient.execute(mHttpPost,new BasicHttpContext());
 
-
                         String responseString = new BasicResponseHandler().handleResponse(mResponse);
+                        parseXML(responseString);
 
+                        //Todo: this is test code. Need to be implemented
+                        //result = parseXML(testStr);
                         Log.i("test", "test:"+" "+responseString);
-                    }
+                        Log.i("test", "test: "+" "+map.size());
 
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
             // this part will be relocated in order to let the the server process picture
-            Intent display = new Intent(getApplicationContext(), DisplayInfo.class);
-            startActivity(display);
+            if (map.size() == 0){
+                Intent display = new Intent(getApplicationContext(), DisplayInfoFailed.class);
+                display.putExtra("result", (java.io.Serializable) iQAMsg);
+                startActivity(display);
+            }
+            else{
+                Intent display = new Intent(getApplicationContext(), DisplayInfo.class);
+                display.putExtra("result", (java.io.Serializable) map);
+                startActivity(display);
+
+            }
         } else {
             // The file does not exist yet. Before starting the file observer, you
             // can update your UI to let the user know that the application is
@@ -235,25 +278,6 @@ public class CameraActivity extends Activity {
 
     }
 
-    class LongOperation extends AsyncTask<String, Void, String> {
-
-        @Override
-        protected String doInBackground(String... params) {
-            processPictureWhenReady(params[0]);
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-        }
-
-        @Override
-        protected void onPreExecute() {}
-
-        @Override
-        protected void onProgressUpdate(Void... values) {}
-    }
-
 
     private String formatSOAPMessage(String method, HashMap<String, String> params)
     {
@@ -288,6 +312,50 @@ public class CameraActivity extends Activity {
         return mBuilder.toString();
     }
 
+    public void parseXML(String xml) {
+        //Map<String, String> map = new HashMap<String, String>();
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            InputSource is = new InputSource();
+            is.setCharacterStream(new StringReader(xml));
+
+            Document doc = db.parse(is);
+            NodeList nodes = doc.getElementsByTagName("ExtractedField");
+
+            // iterate the employees
+            for (int i = 0; i < nodes.getLength(); i++) {
+                Element element = (Element) nodes.item(i);
+
+                NodeList name = element.getElementsByTagName("Name");
+                Element nameE = (Element) name.item(0);
+
+                NodeList bestValue = element.getElementsByTagName("ValueBest");
+                Element bestValueE = (Element) bestValue.item(0);
+
+                map.put(getCharacterDataFromElement(nameE), getCharacterDataFromElement(bestValueE) );
+            }
+            //if(map.size() == 0){
+            NodeList imageQuality = doc.getElementsByTagName("IQAMessage");
+            Element iqaMsg = (Element) imageQuality.item(0);
+            iQAMsg.put("IQAMessage",getCharacterDataFromElement(iqaMsg));
+            //}
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return;
+    }
+
+    public static String getCharacterDataFromElement(Element e) {
+        Node child = e.getFirstChild();
+        if (child instanceof CharacterData) {
+            CharacterData cd = (CharacterData) child;
+            return cd.getData();
+        }
+        return "?";
+    }
+
 
     // camera preview stuff
     class SurfaceHolderCallback implements SurfaceHolder.Callback {
@@ -298,12 +366,8 @@ public class CameraActivity extends Activity {
                 try {
                     Camera.Parameters params = camera.getParameters(); // must change the camera parameters to fix a bug in XE1
                     params.setPreviewFpsRange(CAMERA_FPS, CAMERA_FPS);
-                    //params.setPictureSize(320,240);
                     camera.setParameters(params);
 
-//                    Camera.Parameters params1 = camera.getParameters(); // must change the camera parameters to fix a bug in XE1
-//                    Camera.Size sizes = params1.getPictureSize();
-//                    Log.d("Hello","size : "+ sizes.width +" "+ sizes.height);
                     camera.setPreviewDisplay(surfaceHolder);
                     camera.startPreview();
                     previewOn = true;
@@ -316,6 +380,7 @@ public class CameraActivity extends Activity {
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
             camera = Camera.open();
+            keyEnable=true;
 
         }
 
@@ -324,8 +389,27 @@ public class CameraActivity extends Activity {
             if (previewOn) {
                 camera.stopPreview(); //stop the preview
                 camera.release();  //release the camera for using it later (or if another app want to use)
+                keyEnable = false;
             }
         }
+    }
+
+    class LongOperation extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            processPictureWhenReady(params[0]);
+            return null;
+        }
+        @Override
+        protected void onPostExecute(String result) {
+        }
+        @Override
+        protected void onPreExecute() {
+            //mCardScroller = new CardScrollView(this);
+            //mCardScroller.setAdapter(new CardAdapter(createCards()));
+        }
+        @Override
+        protected void onProgressUpdate(Void... values) {}
     }
 
 }
